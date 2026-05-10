@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="es">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ReciclaCAT — Escaparate</title>
-<meta name="description" content="Catálogo de productos para compostaje y reciclaje doméstico, comunitario e industrial. Consultas por WhatsApp." />
-<meta name="theme-color" content="#1f3027" />
+<title>ReciclaCAT — Escaparate de recambios de ocasión</title>
+<meta name="description" content="Catálogo de recambios de automoción de ocasión. Más de 170.000 piezas verificadas. Consulta disponibilidad por WhatsApp." />
+<meta name="theme-color" content="#1a2520" />
 
-<!-- Open Graph -->
-<meta property="og:title" content="ReciclaCAT — Escaparate" />
-<meta property="og:description" content="Productos de compostaje y reciclaje. Consulta disponibilidad por WhatsApp." />
+<meta property="og:title" content="ReciclaCAT — Recambios de ocasión" />
+<meta property="og:description" content="Más de 170.000 recambios verificados. Consulta por WhatsApp." />
 <meta property="og:type" content="website" />
 
-<!-- Tipografía: Fraunces (display serif con personalidad) + Inter Tight (humanista) -->
+<!-- Tipografía: serif con personalidad + mono industrial -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -23,15 +22,16 @@
 
 <!-- Cabecera -->
 <header class="site-header">
-  <div class="brand">
+  <a class="brand" href="#">
     <span class="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 40 40" width="36" height="36">
-        <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M12 22 Q20 8 28 22 Q24 28 20 24 Q16 28 12 22 Z" fill="currentColor"/>
+      <svg viewBox="0 0 40 40" width="34" height="34">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M14 20 L20 12 L26 20 L20 28 Z" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="20" cy="20" r="3" fill="currentColor"/>
       </svg>
     </span>
     <span class="brand-name">Recicla<em>CAT</em></span>
-  </div>
+  </a>
   <nav class="header-nav">
     <a href="#catalogo">Catálogo</a>
     <a href="#contacto">Contacto</a>
@@ -40,19 +40,21 @@
 
 <!-- Hero -->
 <section class="hero">
-  <p class="kicker">Catálogo · Stock disponible</p>
+  <p class="kicker">Catálogo de recambios · Stock real</p>
   <h1>
-    Productos para <em>cerrar el ciclo</em><br/>
-    de los residuos orgánicos.
+    Más de <em id="hero-total">170.000</em> piezas<br/>
+    de ocasión<span class="dot-acc">.</span>
   </h1>
   <p class="lead">
-    Compostadores, contenedores y accesorios para hogares, comunidades, escuelas e industria.
-    Escaparate informativo — solicita disponibilidad y precio por WhatsApp.
+    Despiece y verificación pieza a pieza. Carrocería, electricidad, mecánica e interior
+    de las principales marcas. Consulta disponibilidad y precio por WhatsApp.
   </p>
   <div class="hero-meta">
-    <span id="hero-count">—</span> referencias en stock
+    <span><span id="hero-count">—</span> referencias</span>
     <span class="dot">·</span>
-    actualizado <span id="hero-updated">hoy</span>
+    <span><span id="hero-brands">—</span> marcas</span>
+    <span class="dot">·</span>
+    <span>actualizado <span id="hero-updated">hoy</span></span>
   </div>
 </section>
 
@@ -63,34 +65,56 @@
       <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
       <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
-    <input id="q" type="search" placeholder="Buscar por nombre, SKU o palabra clave…" autocomplete="off" />
+    <input id="q" type="search" placeholder="Buscar pieza, marca, modelo o referencia…" autocomplete="off" />
+    <button class="search-clear" id="q-clear" aria-label="Limpiar" hidden>×</button>
   </div>
 
-  <div class="chip-row" id="chips" role="tablist" aria-label="Filtrar por categoría"></div>
+  <div class="select-row">
+    <label class="select">
+      <span>Familia</span>
+      <select id="f-family"><option value="">Todas</option></select>
+    </label>
+    <label class="select">
+      <span>Marca</span>
+      <select id="f-brand"><option value="">Todas</option></select>
+    </label>
+    <label class="select">
+      <span>Modelo</span>
+      <select id="f-model" disabled><option value="">— elige marca —</option></select>
+    </label>
+    <label class="select year-range">
+      <span>Año del vehículo</span>
+      <div class="year-inputs">
+        <input id="f-y0" type="number" inputmode="numeric" placeholder="desde" />
+        <span>—</span>
+        <input id="f-y1" type="number" inputmode="numeric" placeholder="hasta" />
+      </div>
+    </label>
+  </div>
 
   <div class="toolbar">
-    <label class="toggle">
-      <input type="checkbox" id="onlyStock" />
-      <span>Solo con stock</span>
-    </label>
-    <label class="toggle">
-      <input type="checkbox" id="onlyFeatured" />
-      <span>Destacados</span>
-    </label>
     <select id="sort" aria-label="Ordenar">
-      <option value="featured">Destacados primero</option>
-      <option value="name-asc">Nombre A→Z</option>
-      <option value="name-desc">Nombre Z→A</option>
+      <option value="rel">Relevancia</option>
       <option value="price-asc">Precio ↑</option>
       <option value="price-desc">Precio ↓</option>
+      <option value="year-desc">Más recientes</option>
+      <option value="year-asc">Más antiguos</option>
     </select>
+    <button class="reset" id="reset-filters" type="button">Limpiar filtros</button>
   </div>
+
+  <p class="results-count"><span id="result-count">—</span> piezas encontradas</p>
 </section>
 
-<!-- Grid de productos -->
+<!-- Grid -->
 <main class="grid" id="grid" aria-live="polite"></main>
 
-<!-- Estado vacío / cargando -->
+<!-- Cargar más -->
+<div class="load-more-wrap">
+  <button id="load-more" class="load-more" hidden>Mostrar más piezas</button>
+</div>
+
+<!-- Estado / loading -->
 <p class="status" id="status">Cargando catálogo…</p>
 
 <!-- Pie -->
@@ -98,7 +122,7 @@
   <div class="footer-grid">
     <div>
       <h3>ReciclaCAT</h3>
-      <p>Catálogo de productos para compostaje y reciclaje. Las consultas se gestionan por WhatsApp; los precios mostrados son orientativos.</p>
+      <p>Catálogo de recambios de ocasión. Verificación y despiece propios. Las consultas se gestionan por WhatsApp; los precios son orientativos hasta confirmar disponibilidad.</p>
     </div>
     <div>
       <h3>Contacto</h3>
@@ -108,13 +132,13 @@
     </div>
     <div>
       <h3>Aviso</h3>
-      <p>Este sitio es un escaparate informativo. No se realizan ventas online; toda transacción se acuerda fuera del sitio.</p>
+      <p>Este sitio es un escaparate informativo. No se realizan ventas ni transacciones online; toda compra se acuerda por WhatsApp tras confirmar disponibilidad y estado de la pieza.</p>
     </div>
   </div>
   <p class="copyleft">© <span id="year"></span> ReciclaCAT</p>
 </footer>
 
-<!-- Modal ficha producto -->
+<!-- Modal ficha pieza -->
 <dialog id="product-modal" class="product-modal" aria-labelledby="modal-title">
   <button class="modal-close" data-close aria-label="Cerrar">×</button>
   <div class="modal-body" id="modal-body"></div>

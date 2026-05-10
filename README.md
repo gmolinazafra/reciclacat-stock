@@ -1,100 +1,146 @@
-# ReciclaCAT — Escaparate web
+# ReciclaCAT — Escaparate de recambios
 
-Sitio estático que muestra el stock disponible. Las consultas se canalizan por WhatsApp; **no es una tienda online**.
+Sitio estático que muestra el catálogo (177 000+ piezas) servido desde GitHub Pages.
+Las consultas se canalizan por WhatsApp; **no es una tienda online**.
 
-- 📦 Stock: descargado automáticamente del FTP cada 6 h y commiteado al repo.
-- 🌐 Hosting: GitHub Pages.
-- 💬 Contacto: enlace WhatsApp con mensaje predefinido por producto.
+- 📦 Stock: descargado del FTP cada 6 h y reindexado automáticamente.
+- 🌐 Hosting: GitHub Pages (sin backend).
+- 💬 Contacto: enlace WhatsApp con mensaje predefinido por pieza.
+
+---
+
+## Cómo funciona
+
+```
+       ┌──────────┐   cada 6 h    ┌──────────────────┐    deploy    ┌──────────────┐
+       │   FTP    │ ─────────────►│ GitHub Action    │─────────────►│ GitHub Pages │
+       │ stock.csv│               │ sync + build     │              │   (web)      │
+       └──────────┘               │ + upload artifact│              └──────────────┘
+                                  └──────────────────┘
+                                          │
+                                          ▼
+                                 data/meta.json         (24 KB)  · selectores
+                                 data/index/all.json    (~3 MB gz) · búsqueda y filtros
+                                 data/familias/*.json   (~1-3 MB gz cada una) · fichas completas
+
+   Los JSONs viven solo en el artifact de Pages, no en el repo (ver .gitignore).
+```
+
+El cliente:
+1. Descarga `meta.json` + `index/all.json` al cargar (solo una vez, cacheado).
+2. Filtra/busca **en local** sobre el índice (instantáneo, ~50 ms para 177 k registros).
+3. Cuando abres una ficha, descarga el JSON de **esa familia** bajo demanda y lo cachea.
+
+---
 
 ## Estructura
 
 ```
 .
-├─ index.html              # página principal
+├─ index.html
 ├─ assets/
-│  ├─ styles.css           # estilos
-│  └─ app.js               # carga del CSV, filtros, modal, CTA WhatsApp
+│  ├─ styles.css
+│  └─ app.js                  # carga, filtros, modal, WhatsApp
 ├─ data/
-│  └─ stock.csv            # CSV (lo sobrescribe el GitHub Action)
+│  ├─ meta.json               # generado: catálogos para selectores
+│  ├─ stock.csv               # descargado del FTP (no se commitea, ver .gitignore)
+│  ├─ index/
+│  │  └─ all.json             # generado: índice ligero (todo el catálogo)
+│  └─ familias/
+│     ├─ interior.json        # generado: piezas completas por familia
+│     ├─ electricidad.json
+│     └─ …
 ├─ scripts/
-│  └─ sync-stock.js        # descarga el CSV del FTP
+│  ├─ sync-stock.js           # descarga el CSV del FTP
+│  └─ build-index.js          # parte el CSV en JSONs
 ├─ .github/workflows/
-│  └─ sync-stock.yml       # cron cada 6 h
+│  └─ sync-stock.yml          # cron 6 h + build + commit
 ├─ package.json
 └─ README.md
 ```
 
+---
+
 ## Configuración inicial
 
-### 1. Personalizar el sitio
+### 1. Personaliza el sitio
 
-Edita `assets/app.js` y cambia:
+Edita `assets/app.js` y cambia el número de WhatsApp:
 
 ```js
 const CONFIG = {
-  csvUrl: "data/stock.csv",
-  whatsappNumber: "34600000000",   // ← TU número, formato internacional sin signos
-  columns: { ... },                // ← si tu CSV usa otros nombres de columna
-  currency: "€",
+  whatsappNumber: "34600000000",  // ← formato internacional sin '+', espacios ni guiones
+  // …
 };
 ```
 
-### 2. Configurar los Secrets del FTP (en GitHub)
+### 2. Configura los Secrets del FTP
 
-Ve a `Settings → Secrets and variables → Actions → New repository secret` y crea estos cuatro:
+`Settings → Secrets and variables → Actions → New repository secret`:
 
-| Secret              | Ejemplo                       | Obligatorio |
-| ------------------- | ----------------------------- | ----------- |
-| `FTP_HOST`          | `ftp.midominio.com`           | sí          |
-| `FTP_USER`          | `usuario`                     | sí          |
-| `FTP_PASSWORD`      | `contraseña`                  | sí          |
-| `FTP_REMOTE_PATH`   | `/exports/stock.csv`          | sí          |
-| `FTP_SECURE`        | `true` (solo si usas FTPS)    | opcional    |
+| Secret              | Ejemplo                  | Obligatorio |
+| ------------------- | ------------------------ | ----------- |
+| `FTP_HOST`          | `ftp.midominio.com`      | sí          |
+| `FTP_USER`          | `usuario`                | sí          |
+| `FTP_PASSWORD`      | `contraseña`             | sí          |
+| `FTP_REMOTE_PATH`   | `/exports/stock.csv`     | sí          |
+| `FTP_PORT`          | `41` (por defecto: 21)   | opcional    |
+| `FTP_SECURE`        | `true` si es FTPS        | opcional    |
 
-> ⚠️ Nunca pegues estas credenciales en el código ni en commits. Solo aquí.
+### 3. Activa GitHub Pages (modo Actions)
 
-### 3. Activar GitHub Pages
+`Settings → Pages → Source: **GitHub Actions**` (no "Deploy from a branch").
 
-`Settings → Pages → Source: Deploy from a branch → Branch: main / root`.
+> Importante: el sitio **no se sirve desde una rama**. Lo despliega el propio
+> workflow tras descargar el CSV y reconstruir los índices. Así los datos
+> generados (~70 MB) no engordan el historial del repo.
 
-A los pocos minutos la web estará en `https://<tu-usuario>.github.io/<nombre-repo>/`.
+### 4. Lanza el primer deploy manual
 
-### 4. Probar el sync manual
+`Actions → Sync stock + deploy to Pages → Run workflow`.
 
-`Actions → Sync stock CSV from FTP → Run workflow`.
+Cuando termine, verás la URL en `Settings → Pages` (típicamente
+`https://<usuario>.github.io/<repo>/`).
 
-Si algo falla, en el log del Action verás el error de conexión FTP.
+---
 
 ## CSV esperado
 
-Por defecto el código espera estas columnas (cabeceras exactas):
+El builder está adaptado al export estándar de **CRV NET** (separador `;`):
 
 ```
-sku,nombre,categoria,descripcion,precio,unidad,stock,foto_url,destacado
+refid;familia;articulo;marca;modelo;modeloinicio;modelofin;motorversion;
+cambioversion;refvisual;refcatalogo;attrib1;attrib2;precio;estado;ubicacion;
+anopieza;nota;notapublica;ean;peso;fechaentrada;codvehiculo;ordenrevision;
+fecharevision;ordenextraccion;fechaextraccion;contenedor;codalmacen;almacen;
+fechaalmacen;factualiza;imgs
 ```
 
-- `precio`: número (acepta coma o punto decimal).
-- `stock`: entero. Si es 0 → marca "Agotado".
-- `foto_url`: URL absoluta a la imagen.
-- `destacado`: `1` / `0` (también acepta `true`/`false`/`sí`).
+Campos usados en la web: `refid, familia, articulo, marca, modelo, modeloinicio, modelofin, motorversion, precio, notapublica, codalmacen, almacen, imgs`.
+El resto se ignora.
 
-Si tu CSV real usa otros nombres, **no cambies el CSV**: cambia el mapeo en
-`CONFIG.columns` dentro de `assets/app.js`.
+`imgs`: lista de URLs separadas por coma. Si está vacío, la pieza se muestra con un placeholder gris ("Sin foto").
+
+---
 
 ## Desarrollo local
 
-No hace falta ningún build. Para verlo en local con Python:
-
 ```bash
-python3 -m http.server 8080
-# abre http://localhost:8080
+npm install
+# Pega un stock.csv en data/  (o copia el sample para probar)
+npm run build           # genera meta.json + index/ + familias/
+npm run serve           # http://localhost:8080
 ```
 
-(Hay que servirlo con un servidor; abrir el `index.html` con doble clic
-no funciona porque `fetch()` requiere `http://`).
+> Hay que servirlo con un servidor (Python o `npx serve`); abrir `index.html`
+> con doble clic no funciona porque `fetch()` requiere `http://`.
+
+---
 
 ## Notas
 
-- El sitio es **informativo**. No procesa pagos ni recoge datos personales.
-- Los precios mostrados son orientativos; las condiciones se confirman por WhatsApp.
-- Las imágenes se cargan desde URLs externas; si una imagen rompe se muestra atenuada.
+- El sitio es **informativo**. No hay carrito, ni pagos, ni recogida de datos personales.
+- Los precios son orientativos hasta confirmar disponibilidad por WhatsApp.
+- El primer arranque del cliente descarga ~3 MB (índice gzip). Las familias se cargan
+  bajo demanda solo cuando el usuario interactúa con piezas de esa familia.
+- Si el CSV cambia mucho de estructura, basta con tocar `scripts/build-index.js`.
