@@ -1,0 +1,12 @@
+{
+  "name": "reciclacat-sync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Script de sincronización del stock CSV desde FTP para la web ReciclaCAT.",
+  "scripts": {
+    "sync": "node scripts/sync-stock.js"
+  },
+  "dependencies": {
+    "basic-ftp": "^5.0.5"
+  }
+}
