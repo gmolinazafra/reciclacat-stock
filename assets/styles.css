@@ -65,20 +65,12 @@ button { font-family: inherit; }
 }
 .brand {
   display: flex; align-items: center; gap: 10px;
-  color: var(--recicla-dark);
   text-decoration: none;
 }
-.brand-mark { color: var(--recicla-green); display: flex; align-items: center; }
-.brand-name {
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: -0.02em;
-  color: var(--recicla-green);
-}
-.brand-name em {
-  color: var(--recicla-teal);
-  font-style: normal;
+.brand-logo {
+  height: 44px;
+  width: auto;
+  display: block;
 }
 .header-nav { display: flex; gap: 24px; align-items: center; }
 .header-nav a {
@@ -624,6 +616,7 @@ button { font-family: inherit; }
     gap: 16px 10px;
     padding: 16px var(--gutter);
   }
+  .brand-logo { height: 36px; }
   .header-nav { gap: 14px; }
   .header-nav a { font-size: 12px; }
   #sort, .reset { width: 100%; margin-left: 0; }
