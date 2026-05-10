@@ -74,9 +74,7 @@ async function loadAll() {
     state.meta = meta;
     state.index = index;
 
-    // Hero
-    document.getElementById("hero-total").textContent =
-      new Intl.NumberFormat("es-ES").format(meta.total);
+    // Hero (formato número con separadores en español)
     document.getElementById("hero-count").textContent =
       new Intl.NumberFormat("es-ES").format(meta.total);
     document.getElementById("hero-brands").textContent = meta.brands.length;
