@@ -349,7 +349,8 @@ async function openProduct(idx) {
   const motor = pieza.mt || "—";
   const almacen = pieza.al || "Por confirmar";
 
-  const msg = `Hola, me interesa esta pieza del catálogo ReciclaCAT:
+  const msg = `Hola, escribo desde la web de ReciclaCAT (recambios.reciclacat.es).
+Me interesa esta pieza del catálogo:
 
 • ${pieza.art}
 • Vehículo: ${veh}${motor !== "—" ? `\n• Motor: ${motor}` : ""}
@@ -481,7 +482,7 @@ document.getElementById("reset-filters").addEventListener("click", () => {
 document.getElementById("load-more").addEventListener("click", renderNextPage);
 
 document.getElementById("wa-direct").href =
-  whatsappUrl("Hola, escribo desde el escaparate de ReciclaCAT. Tengo una consulta:");
+  whatsappUrl("Hola, escribo desde la web de ReciclaCAT (recambios.reciclacat.es). Tengo una consulta sobre el catálogo de recambios:");
 
 document.getElementById("year").textContent = new Date().getFullYear();
 
