@@ -481,8 +481,13 @@ document.getElementById("reset-filters").addEventListener("click", () => {
 });
 document.getElementById("load-more").addEventListener("click", renderNextPage);
 
-document.getElementById("wa-direct").href =
-  whatsappUrl("Hola, escribo desde la web de ReciclaCAT (recambios.reciclacat.es). Tengo una consulta sobre el catálogo de recambios:");
+// WhatsApp links: cabecera + footer
+const waMessage = "Hola, escribo desde la web de ReciclaCAT (recambios.reciclacat.es). Tengo una consulta sobre el catálogo de recambios:";
+const waUrl = whatsappUrl(waMessage);
+const $waHeader = document.getElementById("wa-direct");
+const $waFooter = document.getElementById("wa-direct-footer");
+if ($waHeader) $waHeader.href = waUrl;
+if ($waFooter) $waFooter.href = waUrl;
 
 document.getElementById("year").textContent = new Date().getFullYear();
 
