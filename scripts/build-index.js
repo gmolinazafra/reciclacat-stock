@@ -37,7 +37,9 @@ function toInt(x) {
 }
 
 function toPrice(x) {
-  const s = String(x ?? "").trim().replace(",", ".");
+  // El CSV viene en formato español: "2.700,00" (punto miles, coma decimales).
+  // Hay que quitar los puntos antes de cambiar la coma por punto decimal.
+  const s = String(x ?? "").trim().replace(/\./g, "").replace(",", ".");
   const n = parseFloat(s);
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 }
