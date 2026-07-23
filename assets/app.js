@@ -246,19 +246,25 @@ function applyFilters() {
   const f = state.filters;
 
   const q = normSearch(f.q);
-  // Búsqueda por palabras (todas deben aparecer), ignorando palabras de relleno.
+  // 2026-07-23: extraer año del texto libre ("clio 2007" → filtro y0/y1 implícito).
+  // El año explícito en los filtros de UI tiene prioridad; el del texto es fallback.
+  let anioTexto = null;
+  const mAnio = q && q.match(/\b(19[5-9]\d|20[0-3]\d)\b/);
+  if (mAnio) anioTexto = parseInt(mAnio[0], 10);
+
+  // Búsqueda por palabras (todas deben aparecer), ignorando palabras de relleno
+  // y el token de año (ya se usa como filtro de rango).
   let tokens = q ? q.split(/\s+/).filter(Boolean) : null;
   if (tokens) {
-    const sinRelleno = tokens.filter(t => !STOPWORDS.has(t));
-    // Si la consulta era solo relleno (raro), mantenemos los tokens originales.
-    tokens = sinRelleno.length ? sinRelleno : tokens;
+    const sinRelleno = tokens.filter(t => !STOPWORDS.has(t) && !/^(19[5-9]\d|20[0-3]\d)$/.test(t));
+    tokens = sinRelleno.length ? sinRelleno : tokens.filter(t => !/^(19[5-9]\d|20[0-3]\d)$/.test(t));
   }
 
   const familyIdx = f.family ? families.indexOf(f.family) : -1;
   const brandIdx  = f.brand  ? brands.indexOf(f.brand)    : -1;
   const model     = f.model || "";
-  const y0Filter  = f.y0;
-  const y1Filter  = f.y1;
+  const y0Filter  = f.y0 ?? (anioTexto != null ? anioTexto : null);
+  const y1Filter  = f.y1 ?? (anioTexto != null ? anioTexto : null);
 
   const out = [];
   // Iteramos sobre TODOS los índices (es un loop sobre 127k arrays cortos: <50ms)
