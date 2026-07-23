@@ -11,7 +11,7 @@ const CONFIG = {
   vehiculosUrl:  "data/vehiculos.json",
   familyUrl:     fam => `data/familias/${slug(fam)}.json`,
 
-  pageSize: 60,        // piezas por "página" en el grid
+  pageSize: 15,        // piezas por "página" en el grid (primeras 15 eager, resto lazy)
   searchDebounce: 200, // ms
 };
 
@@ -345,11 +345,13 @@ function renderNextPage() {
     if (!row[COL.h]) card.classList.add("no-img");
     card.dataset.idx = idx;
     card.style.animationDelay = `${Math.min((i - start) * 25, 500)}ms`;
+    const esPrimera = (i - start) < 3;
+    const loadAttr = esPrimera ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
     const mediaInner = row[COL.h]
       ? (row[COL.im0]
           // La fila ya trae la URL de la foto (primer lote): se pinta directa,
           // sin esperar al fetch del JSON de familia.
-          ? `<img loading="lazy" src="${escapeHtml(thumbR2(id) || row[COL.im0])}" data-ref="${escapeHtml(id)}" data-orig="${escapeHtml(row[COL.im0])}" alt="${escapeHtml(title)}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="if(this.dataset.orig&&this.src!==this.dataset.orig){this.src=this.dataset.orig}else{this.style.opacity=.15}">`
+          ? `<img ${loadAttr} src="${escapeHtml(thumbR2(id) || row[COL.im0])}" data-ref="${escapeHtml(id)}" data-orig="${escapeHtml(row[COL.im0])}" alt="${escapeHtml(title)}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="if(this.dataset.orig&&this.src!==this.dataset.orig){this.src=this.dataset.orig}else{this.style.opacity=.15}">`
           : `<img loading="lazy" data-needs-img="1" alt="${escapeHtml(title)}" style="width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s">`)
       : `<div class="card-placeholder"><img src="assets/logo.png" alt="${escapeHtml(title)}" loading="lazy"><span>Sin foto disponible</span></div>`;
     card.innerHTML = `
